@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="public/lib/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="public/lib/layer-v2.2/layer.js"></script>
+    <script type="text/javascript" src="public/javascript/conf_edit.js"></script>
+    <link rel="stylesheet" type="text/css" href="public/css/conf_edit.css">
+    <title>Document</title>
+</head>
+<body>
+    <form class="window">
+        <div class="server">
+            <div class="title-body">
+                <h1>服务器参数</h1>
+            </div>
+            <div class="window-body">
+                <div class="line">
+                    <label class="input-label">IP：</label>
+                    <select name="ip" class="select-ip">
+                        <option value="192.168.1.88">内网测试服</option>
+                        <option value="101.200.140.66">外网测试服</option>
+                        <option value="10.44.32.94">线上正式服</option>
+                    </select>
+                </div>
+                <div class="line">
+                    <label class="input-label">Port：</label>
+                    <input type="text" class="input-port"><i id="port-check"></i>
+                </div>
+            </div>
+        </div>
+        <div class="robot">
+            <div class="title-body">
+                <h1>机器人参数</h1>
+            </div>
+            <div class="window-body">
+                <div class="line">
+                    <label class="input-label">RobotId：</label>
+                    <input type="text" class="input-id-start"><i id="id-start-check"></i>
+                    <span class="id-range">~</span>
+                    <input type="text" class="input-id-end"><i id="id-end-check"></i>
+                </div>
+                <div class="line">
+                    <label class="input-label">RobotNum：</label>
+                    <input type="text" class="input-robotnum"><i id="robotnum-check"></i>
+                </div>
+                <div class="line">
+                    <label class="input-label">RobotLevel：</label>
+                    <select class="select-robotlevel">
+                        <option value="0">1</option>  
+                        <option value="1">2</option>  
+                        <option value="2">3</option>
+                    </select> 
+                </div>
+            </div>
+        </div>
+        <div class="game">
+            <div class="title-body">
+                <h1>游戏参数</h1>
+            </div>
+            <div class="window-body">
+                <div class="line">
+                    <label class="input-label">房间名：</label>
+                    <input type="text" class="input-roomname"><i id="roomname-check"></i>
+                </div>
+                <div class="line">
+                    <label class="input-label">游戏类型：</label>
+                    <input type="text" class="input-gametype"><i id="gametype-check"></i>
+                </div>
+                <div class="line">
+                    <label class="input-label">sessionKey：</label>
+                    <input type="text" class="input-sessionkey"><i id="sessionkey-check"></i>
+                </div>
+                <div class="line">
+                    <label class="input-label">matchId：</label>
+                    <input type="text" class="input-matchid"><i id="matchid-check"></i>
+                </div>
+                <div class="line">
+                     <label class="input-label">游戏名：</label>
+                     <input type="text" class="input-gamename"><i id="gamename-check"></i>
+                </div>
+                <div class="line">
+                    <label class="input-label">最低玩家人数：</label>
+                    <input type="text" class="input-minplayernum"><i id="minplayernum-check"></i>
+                </div>
+                <div class="line">
+                    <label class="input-label">最大玩家人数：</label>
+                    <input type="text" class="input-maxplayernum"><i id="maxplayernum-check"></i>
+                </div>
+                <div class="line">
+                    <label class="input-label">日志路径：</label>
+                    <input type="text" class="input-logpath"><i id="logpath-check"></i>
+                </div>
+            </div>
+        </div>
+        <div class="switch">
+             <div class="title-body">
+                <h1>开关选项</h1>
+            </div>   
+            <div class="window-body">
+                <label for="one" class="switch-container">比赛场：
+                    <input type="checkbox" id="one" name="one" value="1" class="switch-input switch-isMatch">
+                    <div class="switch-box">
+                        <span class="switch-label">On</span>
+                        <span class="switch-label">Off</span>
+                        <span class="switch-handle"></span>
+                    </div>
+                </label>
+                <label for="two" class="switch-container">启动时断线续玩：
+                    <input type="checkbox" id="two" name="two" value="1" class="switch-input switch-isKeepplay" checked>
+                    <div class="switch-box">
+                        <span class="switch-label">On</span>
+                        <span class="switch-label">Off</span>
+                        <span class="switch-handle"></span>
+                    </div>
+                </label>
+            </div>
+        </div>
+        <div class="timer">
+            <div class="title-body">
+                <h1>定时器选项</h1>
+            </div>
+            <div class="window-body">
+                <div class="line">
+                    <label class="input-label">心跳时间：</label>
+                    <input type="text" class="input-heartbeattime"><i id="heartbeattime-check"></i>
+                </div>
+                <div class="line">
+                    <label class="input-label">查询房间状态：</label>
+                    <input type="text" class="input-checkroomtime"><i id="checkroomtime-check"></i>
+                </div>
+                <div class="line">
+                    <label class="input-label">主动消息：</label>
+                    <input type="text" class="input-activemsgtime"><i id="activemsgtime-check"></i>
+                </div>
+                <div class="line">
+                    <label class="input-label">被动消息：</label>
+                    <input type="text" class="input-passivemsgtime"><i id="passivemsgtime-check"></i>
+                </div>
+            </div>
+        </div>
+        <div class="submit-box">
+            <a href="#" class="button button-green button-submit">提交</a>
+            <a href="#" class="button button-red button-cancel">取消</a>
+        </div>
+    </form>
+    <script type="text/javascript">
+    </script>
+    <!-- <table>
+        <tr>
+            <td>服务器参数</td>
+        </tr>
+        <tr>
+            <td>Ip:</td>
+            <td><input type="text"></td>
+            <td>Port:</td>
+            <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>机器人参数</td>
+        </tr>
+        <tr>
+            <td>RobotId:</td>
+            <td><input type="text"></td>
+            <td>~</td>
+            <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>RobotNum:</td>
+            <td><input type="text"></td>
+            <td>RobotLevel:</td>
+            <td>
+                <select>  
+                    <option value="0">1</option>  
+                    <option value="1">2</option>  
+                    <option value="2">3</option>  
+                </select> 
+            </td>
+        </tr>
+        <tr>
+            <td>游戏参数</td>
+        </tr>
+        <tr>
+            <td>房间名:</td>
+            <td><input type="text"></td>
+            <td>游戏类型：</td>
+            <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>sessionKey:</td>
+            <td><input type="text"></td>
+            <td>matchId:</td>
+            <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>游戏名：</td>
+            <td><input type="text"></td>
+            <td>最大玩家人数：</td>
+            <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>日志路径：</td>
+            <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>开关选项：</td>
+        </tr>
+        <tr>
+            <td>比赛场：</td>
+            <td>
+                <input type="radio" name="match" value="true"/>是
+                <input type="radio" name="match" value="false"/>否
+            </td>
+        </tr>
+        <tr>
+            <td>启动时断线续玩：</td>
+            <td>
+                <input type="radio" name="keepplay" value="true"/>是
+                <input type="radio" name="keepplay" value="false"/>否
+            </td>
+        </tr>
+        <tr>
+            <td>定时器选项：</td>
+        </tr>
+        <tr>
+            <td>心跳时间：</td>
+            <td><input type="text"></td>
+            <td>查询房间状态：</td>
+            <td><input type="text"></td>
+        </tr>
+        <tr>
+            <td>主动消息：</td>
+            <td><input type="text"></td>
+            <td>被动消息：</td>
+            <td><input type="text"></td>
+        </tr>
+    </table> -->
+    <!-- <form action="" method="post" class="white-pink">
+        <h1>Robot Configure Edit
+        </h1>
+        <label class="input-label">
+            <span>IP :</span>
+            <input id="name" type="text" name="name" placeholder="Your Full Name" />
+        </label>
+        <label class="input-label">
+            <span>Port :</span>
+            <input id="email" type="email" name="email" placeholder="Valid Email Address" />
+        </label>
+        <label class="input-label">
+            <span>IQLevel :</span>
+            <textarea id="message" name="message" placeholder="Your Message to Us"></textarea>
+        </label>
+        <label class="input-label">
+            <span>robotIdStart :</span>
+            <textarea id="message" name="message" placeholder="Your Message to Us"></textarea>
+        </label>
+         <label class="input-label">
+            <span>robotIdEnd :</span>
+            <textarea id="message" name="message" placeholder="Your Message to Us"></textarea>
+        </label>
+        <label class="input-label">
+            <span>Subject :</span>
+            <select name="selection">
+                <option value="Job Inquiry">Job Inquiry</option>
+                <option value="General Question">General Question</option>
+            </select>
+        </label>
+        <label class="input-label">
+            <span>&nbsp;</span>
+            <input type="button" class="button" value="Send" />
+        </label>
+    </form> -->
+</body>
+</html>
