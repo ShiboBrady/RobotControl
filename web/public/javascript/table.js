@@ -1,16 +1,3 @@
-var data={
-    'game1':'游戏场-新手场',
-    'game2':'游戏场-初级场',
-    'game3':'游戏场-中级场',
-    'game4':'游戏场-高级场',
-    'three':'比赛场-三人场',
-    'six_dali':'比赛场-六人打立场',
-    'six_taotai':'比赛场-六人淘汰场',
-    'ass':'比赛场-十二人场',
-    'newer':'比赛场-二十四人场',
-    'free_timer':'比赛场-定时赛',
-};
-
 var htmlcontent = '<section class="notepad">' +
             '<div class="notepad-heading">' +
             '<h1>游戏场-新手场</h1>' +
@@ -28,7 +15,7 @@ var htmlcontent = '<section class="notepad">' +
                 '</div>' +
                 '<div>' +
                     '<label>Info:</label>' +
-                    '<span class="robot-info">启动成功</span>' +
+                    '<span class="robot-info">未启动</span>' +
                 '</div>' +
             '</blockquote>' +
             '<blockquote class="button-box">' +
@@ -84,12 +71,10 @@ $(function(){
         console.log('forValue: ' + forValue);
         switch (actionName) {
             case 'start':
+                StartRobot(forValue);
                 break;
             case 'stop':
-                //stopSubmitFunc(forValue);
-                break;
-            case 'search':
-                //checkSubmitFunc();
+                StopRobot(forValue);
                 break;
             case 'edit':
                 OpenEditConfPage(forValue);
@@ -102,6 +87,10 @@ $(function(){
             break;
         }
     }));
+    $('.button-refresh').on('click', function(){
+        GetRobotStatus(true);
+    });
+
     $('.button-create').on('click', function(){
         layer.open({
             type: 2,
@@ -128,7 +117,16 @@ function GetRobotConf() {
     $.ajax({
       type: 'POST',
       url: '/data/robot_config',
-      success: successcallback,
+      success: function (data) {
+            var rtnData = JSON.parse(data);
+            var errcode = rtnData.errcode;
+            var message = rtnData.message;
+            var result = rtnData.result;
+            console.log(result);
+            robotConfigure = result;
+            InitRoomInfo(robotConfigure);
+            GetRobotStatus(false);
+        },
     });
 }
 
@@ -147,31 +145,95 @@ function InitRoomInfo(data){
     }
 }
 
-var url = "http://192.168.1.89:8000";
-function sendRequest(url){
-    var req = new XMLHttpRequest();
-    req.open("GET", url);
-    req.send(null);
-    console.log('url is:' + url);
-    req.onreadystatechange = function(){
-        if (req.readyState == 4 && req.status == 200){
-            var output = document.getElementById("output");
-            output.innerHTML = req.responseText;
-            console.log('req.responseText');
-        }
-    }   
+function sendRequest(url, sendData){
+    $.ajax({
+        type: 'POST',
+        data: sendData,
+        url: url,
+        success: function(data){
+
+        },
+    })   
 }
-function checkSubmitFunc(){ 
-    var currentUrl = url + "/robot_status";
-    sendRequest(currentUrl);
+
+function GetRobotStatus(bIsDisplay){ 
+    var currentUrl = '/data/robot_status';
+    $.ajax({
+        type: 'POST',
+        url: currentUrl,
+        success: function(data){
+            console.log(data);
+            var retData = JSON.parse(data);
+            var errcode = retData['errcode'];
+            var message = retData['message'];
+            if (0 != errcode) {
+                ErrorMsg(message);
+            } else {
+                var result = retData['result'];
+                console.log(result);
+                $('.wraper').children().each(function(){
+                    $(this).find('.robot-info').html('未启动');
+                });
+                for (var index in result) {
+                    var boxId = 'section-' + result[index];
+                    console.log('boxId: ' + boxId);
+                    $('#'+boxId+' .robot-info').html('运行中');
+                }
+                if (bIsDisplay) {
+                    SuccessMsg('刷新成功');
+                }
+            }
+        },
+    })
 }
-function startSubmitFunc(buttonId){
-    var currentUrl = url + "/robot_start?kind=" + buttonId;
-    sendRequest(currentUrl);
+
+function StartRobot(buttonId){
+    var currentUrl = '/data/robot_start';
+    var sendData = 'roomname=' + buttonId;
+    $.ajax({
+        type: 'POST',
+        data: sendData,
+        url: currentUrl,
+        success: function(data){
+            console.log(data);
+            var retData = JSON.parse(data);
+            var errcode = retData['errcode'];
+            var message = retData['message'];
+            if (0 != errcode) {
+                ErrorMsg(message);
+                $('#'+boxId+' .robot-info').html('未启动');
+            } else {
+                var boxId = 'section-' + buttonId;
+                console.log('boxId: ' + boxId);
+                $('#'+boxId+' .robot-info').html('运行中');
+                SuccessMsg('启动成功');
+            }
+        },
+    })
 }
-function stopSubmitFunc(buttonId){
-    var currentUrl = url + "/robot_stop?kind=" + buttonId;
-    sendRequest(currentUrl);
+
+function StopRobot(buttonId){
+    var currentUrl = '/data/robot_stop';
+    var sendData = 'roomname=' + buttonId;
+    $.ajax({
+        type: 'POST',
+        data: sendData,
+        url: currentUrl,
+        success: function(data){
+            console.log(data);
+            var retData = JSON.parse(data);
+            var errcode = retData['errcode'];
+            var message = retData['message'];
+            if (0 != errcode) {
+                ErrorMsg(message);
+            } else {
+                var boxId = 'section-' + buttonId;
+                console.log('boxId: ' + boxId);
+                $('#'+boxId+' .robot-info').html('未启动');
+                SuccessMsg('停止成功');
+            }
+        },
+    })
 }
 
 function OpenEditConfPage(roomname){
@@ -192,48 +254,72 @@ function GetAssignedConf(roomname){
 
 function ModifyAssignedConf(roomname, obj) {
     console.log("roomname: " + roomname);
+    var sendData = 'roomname=' + roomname + '&data=' + JSON.stringify(obj);
+    console.log('send data is: ' + sendData);
     //服务器操作
-    //
-    
-    robotConfigure[roomname] = obj;
-    var boxid = 'section-' + roomname;
-    var boxElem = $('#'+boxid);
-    boxElem.find('h1').html(robotConfigure[roomname]["game"]["room_name"]);
-    boxElem.find('.content-box .id-start').html(robotConfigure[roomname]["robot"]["robotIdStart"]);
-    boxElem.find('.content-box .id-end').html(robotConfigure[roomname]["robot"]["robotIdEnd"]);
-    boxElem.find('.content-box .id-num').html(robotConfigure[roomname]["robot"]["robotNum"]);
-    return true;
+    $.ajax({
+        type: 'POST',
+        url: '/data/mod_robot_config',
+        data: sendData,
+        success: function (data) {
+            console.log(data);
+            var retData = JSON.parse(data);
+            var errcode = retData['errcode'];
+            var message = retData['message'];
+            if (0 != errcode) {
+                ErrorMsg(message);
+            } else {
+                console.log("Send modify post request success.");
+                delete robotConfigure[roomname];
+                robotConfigure[roomname] = obj;
+                var boxid = 'section-' + roomname;
+                var boxElem = $('#'+boxid);
+                boxElem.find('h1').html(robotConfigure[roomname]["game"]["room_name"]);
+                boxElem.find('.content-box .id-start').html(robotConfigure[roomname]["robot"]["robotIdStart"]);
+                boxElem.find('.content-box .id-end').html(robotConfigure[roomname]["robot"]["robotIdEnd"]);
+                boxElem.find('.content-box .id-num').html(robotConfigure[roomname]["robot"]["robotNum"]);
+                SuccessMsg('修改成功');
+            }
+        }
+    })
 }
 
 function CreateNewConf(roomname, obj) {
     console.log("roomname: " + roomname);
     if (robotConfigure[roomname] != undefined) {
+        ErrorMsg('Already exist gamename: ' + roomname);
         return false;
     }
-    var sendData = JSON.stringify(obj);
+    var sendData = 'roomname=' + roomname + '&data=' + JSON.stringify(obj);
+    console.log('send data is: ' + sendData);
     //服务器操作
     $.ajax({
         type: 'POST',
         url: '/data/add_robot_config',
-        data: 'roomname=' + roomname + '&data=' + sendData,
+        data: sendData,
         success: function (data) {
             console.log(data);
-            var robotInfoBox = $('.wraper');
-            robotConfigure[roomname] = obj;
-            var boxid = 'section-' + roomname;
-            robotInfoBox.append(htmlcontent);
-            robotInfoBox.children().last().attr('id', boxid);
-            var thisBox = $('#'+boxid);
-            thisBox.find('.button-box').children().attr("for", roomname);
-            thisBox.find('h1').html(robotConfigure[roomname]["game"]["room_name"]);
-            thisBox.find('.content-box .id-start').html(robotConfigure[roomname]["robot"]["robotIdStart"]);
-            thisBox.find('.content-box .id-end').html(robotConfigure[roomname]["robot"]["robotIdEnd"]);
-            thisBox.find('.content-box .id-num').html(robotConfigure[roomname]["robot"]["robotNum"]);
-            SuccessMsg('新建配置成功');
+            var retData = JSON.parse(data);
+            var errcode = retData['errcode'];
+            var message = retData['message'];
+            if (0 != errcode) {
+                ErrorMsg(message);
+            } else {
+                var robotInfoBox = $('.wraper');
+                robotConfigure[roomname] = obj;
+                var boxid = 'section-' + roomname;
+                robotInfoBox.append(htmlcontent);
+                robotInfoBox.children().last().attr('id', boxid);
+                var thisBox = $('#'+boxid);
+                thisBox.find('.button-box').children().attr("for", roomname);
+                thisBox.find('h1').html(robotConfigure[roomname]["game"]["room_name"]);
+                thisBox.find('.content-box .id-start').html(robotConfigure[roomname]["robot"]["robotIdStart"]);
+                thisBox.find('.content-box .id-end').html(robotConfigure[roomname]["robot"]["robotIdEnd"]);
+                thisBox.find('.content-box .id-num').html(robotConfigure[roomname]["robot"]["robotNum"]);
+                SuccessMsg('新建配置成功');
+            }
         },
-    })
-    
-    
+    });
     return true;
 }
 
@@ -245,20 +331,31 @@ function DeleteAssignedConf(roomname){
             console.log("User delete this item.");
             console.log("roomname: " + roomname);
             //服务器操作
-            //
-            
-            var boxid = 'section-' + roomname;
-            if (robotConfigure[roomname] == undefined) {
-                ErrorMsg("删除" + roomname + "失败");
-                return false;
-            }
-            var boxid = 'section-' + roomname;
-            var thisBox = $('#'+boxid);
-            thisBox.remove();
-            delete robotConfigure[roomname];
-            SuccessMsg("删除" + roomname + "成功");
-            layer.close(index);
-            return true;
+            $.ajax({
+                type: 'POST',
+                url: '/data/del_robot_config',
+                data: 'roomname=' + roomname,
+                success: function(data) {
+                    console.log(data);
+                    var retData = JSON.parse(data);
+                    var errcode = retData['errcode'];
+                    var message = retData['message'];
+                    if (0 != errcode) {
+                        ErrorMsg(message);
+                    } else {
+                        var boxid = 'section-' + roomname;
+                        if (robotConfigure[roomname] == undefined) {
+                            ErrorMsg("删除" + roomname + "失败");
+                        }
+                        var boxid = 'section-' + roomname;
+                        var thisBox = $('#'+boxid);
+                        thisBox.remove();
+                        delete robotConfigure[roomname];
+                        SuccessMsg("删除" + roomname + "成功");
+                        layer.close(index);
+                    }
+                },
+            });
         }
     });
 }

@@ -2,7 +2,12 @@ $(function(){
     $('.button-cancel').click(function(){
         console.log("cancel button click.");
         CloseThisWindow();
-    })
+    });
+    $('.input-matchid').keyup(function(){
+        var inputvalue = 'game' + $(this).val();
+        $('.input-logpath').val('../configure/' + inputvalue + '.properties');
+    });
+    $('.input-logpath').attr("readonly", "true");
     if (window.location.href.indexOf("?") > 0) {
         console.log("Come from edit page.");
         var roomname = getQueryString('roomname');
@@ -57,6 +62,7 @@ $(function(){
         $('.input-checkroomtime').val(roomstate);
         $('.input-activemsgtime').val(activeMsgDelay);
         $('.input-passivemsgtime').val(passiveMsgDelay);
+        $('.input-matchid').attr("readonly", "true");
         $('.button-submit').click(function(){
             console.log("submit button click.");
             if (!CheckParams()) {
@@ -74,6 +80,7 @@ $(function(){
                 console.log("Not modify.");
             } else {
                 console.log("Modifyed.");
+                console.log(newJsonObj);
                 window.parent.ModifyAssignedConf(roomname, newJsonObj);
             }
 
@@ -125,6 +132,7 @@ $(function(){
         })
     } else {
         console.log("Come from create page.");
+        InitWithDefaultValue();
          $('.button-submit').click(function(){
             console.log("submit button click.");
             if (!CheckParams()) {
@@ -132,7 +140,7 @@ $(function(){
             }
             var newJsonObj = {};
             GenerateJsonObjWhenButtonClick(newJsonObj);
-            var ret = window.parent.CreateNewConf($('.input-gamename').val(), newJsonObj);
+            var ret = window.parent.CreateNewConf('game' + $('.input-matchid').val(), newJsonObj);
             if (!ret) {
                 console.log("create error.");
             } else {
@@ -283,20 +291,12 @@ function GenerateJsonObjWhenButtonClick(newJsonObj) {
     var newminPlayerNum = Number($('.input-minplayernum').val());
     var newplayerNum = Number($('.input-maxplayernum').val());
     var newlogConf = $('.input-logpath').val();
-    // $new('.switch-isMatch').attr("checked","checked");
-    var newisMatch = false;
-    var newisCheckKeepPlay = false;
+    var newisMatch = $('.switch-isMatch').is(':checked');
+    var newisCheckKeepPlay = $('.switch-isKeepplay').is(':checked');
     var newheartBeat = Number($('.input-heartbeattime').val());
     var newroomstate = Number($('.input-checkroomtime').val());
     var newactiveMsgDelay = Number($('.input-activemsgtime').val());
     var newpassiveMsgDelay = Number($('.input-passivemsgtime').val());
-
-    if ($('.switch-isMatch').attr("checked") == "checked") {
-        newisMatch = true;
-    }            
-    if ($('.switch-isKeepplay').attr("checked") == "checked") {
-        newisCheckKeepPlay = true;
-    }
 
     newJsonObj["server"] = {};
     newJsonObj["robot"] = {};
@@ -328,4 +328,30 @@ function GenerateJsonObjWhenButtonClick(newJsonObj) {
     newJsonObj["timer"]["activeMsgDelay"] = newactiveMsgDelay;
     newJsonObj["timer"]["passiveMsgDelay"] = newpassiveMsgDelay;
     newJsonObj["timer"]["roomstate"] = newroomstate;
+}
+
+function InitWithDefaultValue() {
+    var default_port = 4001;
+    var default_isMatch = false;
+    var default_isCheckKeepPlay = true;
+    var default_type = 'ddz';
+    var default_sessionKey = 'session_';
+    var default_minPlayerNum = 1;
+    var default_playerNum = 1;
+    var default_heartBeat = 30;
+    var default_roomstate = 3;
+    var default_activeMsgDelay = 6;
+    var default_passiveMsgDelay = 3;
+
+    $('.input-port').val(default_port);
+    $('.input-gametype').val(default_type);
+    $('.input-sessionkey').val(default_sessionKey);
+    $('.input-minplayernum').val(default_minPlayerNum);
+    $('.input-maxplayernum').val(default_playerNum);
+    $('.switch-isMatch').attr("checked",default_isMatch);
+    $('.switch-isKeepplay').attr("checked",default_isCheckKeepPlay);
+    $('.input-heartbeattime').val(default_heartBeat);
+    $('.input-checkroomtime').val(default_roomstate);
+    $('.input-activemsgtime').val(default_activeMsgDelay);
+    $('.input-passivemsgtime').val(default_passiveMsgDelay);
 }
