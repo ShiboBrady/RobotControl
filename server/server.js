@@ -1,3 +1,9 @@
+var webPort = 8989;
+var bashPath = '../my_new_robot/';
+var binPath = 'bin/';
+var logPath = 'log/';
+var confPath = 'configure/';
+
 var express = require('express');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
@@ -5,6 +11,7 @@ var fs = require('fs');
 var multer = require('multer');
 var child_process = require('child_process');
 
+process.on("SIGHUP", function(){});
 var app = express();
 var urlencodedParser = bodyParser.urlencoded({extended: false})
 app.use(urlencodedParser);
@@ -13,6 +20,7 @@ app.use(cookieParser());
 app.use(express.static('public'));
 
 var RobotStatus = '/data/robot_status';
+var RobotNum = '/data/robot_num';
 var StartRobot = '/data/robot_start';
 var StopRobot = '/data/robot_stop';
 var GetRobotConf = '/data/robot_config';
@@ -45,12 +53,6 @@ var errorInfo = {
     103: "already exit this log config file.",
 }
 
-var webPort = 8989;
-var bashPath = '/home/zhangshibo/bin/compile/my_new_robot/';
-var binPath = 'bin/';
-var logPath = 'log/';
-var confPath = 'configure/';
-
 app.get('/', function(req, res){
     res.sendFile(__dirname + "/" + "index.html");
 })
@@ -77,6 +79,40 @@ app.post(RobotStatus, function(req, res){
             response['message'] = errorInfo[0];
             response['result'] = statueList;
             console.log('Get robot status action success. ');
+        }
+        var strSend = JSON.stringify(response);
+        console.log('Send to client: ' + strSend);
+        res.end(strSend);
+    });
+    workerProcess.on('exit', function (code) {
+        console.log('child progress exit code: ' + code);
+    });
+})
+
+app.post(RobotNum, function(req, res){
+    console.log('query robot status.');
+    var strCommand = 'cd ' + bashPath + ' && ./s.sh ' + 'robotnum';
+    console.log(strCommand);
+    var workerProcess = child_process.exec(strCommand, function (error, stdout, stderr) {
+        console.log('Status command execute over. stdout: ' + stdout + ' ,stderr: ' + stderr);
+        var response = {};
+        if (error){
+            console.log('Get robot status action error.');
+            response['errcode'] = error.code;
+            response['message'] = errorInfo[error.code];
+        }else{
+            var statueList = stdout.split('\n');
+            statueList.pop();
+            runningRobotNum = {};
+            for (var item in statueList) {
+                eachStatus = statueList[item].split(':');
+                runningRobotNum[eachStatus[0]] = eachStatus[1];
+            }
+            response['errcode'] = 0;
+            response['message'] = errorInfo[0];
+            response['result'] = runningRobotNum;
+            console.log(response);
+            console.log('Get robot num action success. ');
         }
         var strSend = JSON.stringify(response);
         console.log('Send to client: ' + strSend);

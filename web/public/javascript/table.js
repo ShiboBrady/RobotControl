@@ -17,6 +17,10 @@ var htmlcontent = '<section class="notepad">' +
                     '<label>Info:</label>' +
                     '<span class="robot-info">未启动</span>' +
                 '</div>' +
+                '<div>' +
+                    '<label>RobotRunning:</label>' +
+                    '<span class="robot-run">100</span>' +
+                '</div>' +
             '</blockquote>' +
             '<blockquote class="button-box">' +
                 '<a href="#" class="button button-blue" action="edit" for="">编辑</a>' +
@@ -89,6 +93,7 @@ $(function(){
     }));
     $('.button-refresh').on('click', function(){
         GetRobotStatus(true);
+        GetRobotNum(true);
     });
 
     $('.button-create').on('click', function(){
@@ -116,7 +121,7 @@ function successcallback(data) {
 function GetRobotConf() {
     $.ajax({
       type: 'POST',
-      url: '/data/robot_config',
+      url: 'data/robot_config',
       success: function (data) {
             var rtnData = JSON.parse(data);
             var errcode = rtnData.errcode;
@@ -126,6 +131,7 @@ function GetRobotConf() {
             robotConfigure = result;
             InitRoomInfo(robotConfigure);
             GetRobotStatus(false);
+            GetRobotNum(false);
         },
     });
 }
@@ -157,7 +163,7 @@ function sendRequest(url, sendData){
 }
 
 function GetRobotStatus(bIsDisplay){ 
-    var currentUrl = '/data/robot_status';
+    var currentUrl = 'data/robot_status';
     $.ajax({
         type: 'POST',
         url: currentUrl,
@@ -187,8 +193,40 @@ function GetRobotStatus(bIsDisplay){
     })
 }
 
+function GetRobotNum(bIsDisplay) {
+    var currentUrl = 'data/robot_num';
+    $.ajax({
+        type: 'POST',
+        url: currentUrl,
+        success: function(data) {
+            console.log(data);
+            var retData = JSON.parse(data);
+            var errcode = retData['errcode'];
+            var message = retData['message'];
+            if (0 != errcode) {
+                ErrorMsg(message);
+            } else {
+                var result = retData['result'];
+                console.log(result);
+                $('.wraper').children().each(function(){
+                    $(this).find('.robot-run').html('0');
+                })
+                for (var item in result) {
+                    var robotNum = result[item];
+                    var boxId = 'section-' + item;
+                    console.log('boxId: ' + boxId);
+                    $('#'+boxId+' .robot-run').html(robotNum);
+                }
+                if (bIsDisplay) {
+                    SuccessMsg('获取运行中的机器人个数成功');
+                }
+            }
+        }
+    })
+}
+
 function StartRobot(buttonId){
-    var currentUrl = '/data/robot_start';
+    var currentUrl = 'data/robot_start';
     var sendData = 'roomname=' + buttonId;
     $.ajax({
         type: 'POST',
@@ -213,7 +251,7 @@ function StartRobot(buttonId){
 }
 
 function StopRobot(buttonId){
-    var currentUrl = '/data/robot_stop';
+    var currentUrl = 'data/robot_stop';
     var sendData = 'roomname=' + buttonId;
     $.ajax({
         type: 'POST',
@@ -259,7 +297,7 @@ function ModifyAssignedConf(roomname, obj) {
     //服务器操作
     $.ajax({
         type: 'POST',
-        url: '/data/mod_robot_config',
+        url: 'data/mod_robot_config',
         data: sendData,
         success: function (data) {
             console.log(data);
@@ -295,7 +333,7 @@ function CreateNewConf(roomname, obj) {
     //服务器操作
     $.ajax({
         type: 'POST',
-        url: '/data/add_robot_config',
+        url: 'data/add_robot_config',
         data: sendData,
         success: function (data) {
             console.log(data);
@@ -333,7 +371,7 @@ function DeleteAssignedConf(roomname){
             //服务器操作
             $.ajax({
                 type: 'POST',
-                url: '/data/del_robot_config',
+                url: 'data/del_robot_config',
                 data: 'roomname=' + roomname,
                 success: function(data) {
                     console.log(data);
